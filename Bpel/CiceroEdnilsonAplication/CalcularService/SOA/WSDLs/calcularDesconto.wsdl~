@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<wsdl:definitions name="desconto" targetNamespace="br.com.ciceroednilson"
+                    xmlns:tns="br.com.ednilsoncicero"
+                    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"     
+                    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+  
+  <wsdl:types>
+       <xsd:schema attributeFormDefault="unqualified" 
+                      elementFormDefault="qualified" 
+                         targetNamespace="br.com.ciceroednilson"
+                               xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+                             xmlns:inter="br.com.ciceroednilson">
+            
+            <xsd:element name="CalcularDescontoRequestType">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element minOccurs="1" name="salario" nillable="false" type="xsd:float"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            
+            <xsd:element name="CalcularDescontoResponseType">
+                <xsd:complexType>
+                    <xsd:sequence>                    
+			 <xsd:element minOccurs="1" name="salarioBruto"       nillable="false" type="xsd:string"/>                        
+			 <xsd:element minOccurs="1" name="salarioComDesconto" nillable="false" type="xsd:string"/>
+			 <xsd:element minOccurs="1" name="aliquotaCobrada"    nillable="false" type="xsd:float"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>                        
+      </xsd:schema>
+  </wsdl:types>
+    
+  <wsdl:message name="CalcularDescontoRequest">
+      <wsdl:part name="parameters" element="tns:CalcularDescontoRequestType"/>
+  </wsdl:message>
+  
+  <wsdl:message name="CalcularDescontoResponse">
+      <wsdl:part name="parameters" element="tns:CalcularDescontoResponseType"/>
+  </wsdl:message>    
+    
+  <wsdl:portType name="Calcular_ptt">      
+      <wsdl:operation name="CalcularDesconto" parameterOrder="parameters">
+          <wsdl:input  message="tns:CalcularDescontoRequest"/>            
+          <wsdl:output message="tns:CalcularDescontoResponse"/>
+      </wsdl:operation>            
+  </wsdl:portType>
+  
+</wsdl:definitions>

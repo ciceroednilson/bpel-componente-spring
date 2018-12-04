@@ -1,0 +1,96 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+<!--
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  Oracle JDeveloper BPEL Designer 
+  
+  Created: Fri Mar 02 10:22:45 BRT 2018
+  Author:  stp
+  Purpose: Synchronous BPEL Process
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-->
+<process name="Calcular"
+               targetNamespace="http://xmlns.oracle.com/CiceroEdnilsonAplication/CalcularService/Calcular"
+               xmlns="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+               xmlns:client="http://xmlns.oracle.com/CiceroEdnilsonAplication/CalcularService/Calcular"
+               xmlns:ora="http://schemas.oracle.com/xpath/extension"
+               xmlns:bpelx="http://schemas.oracle.com/bpel/extension"
+               xmlns:ns2="br.com.ednilsoncicero"
+               xmlns:ns1="br.com.ciceroednilson"
+               xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+         xmlns:ui="http://xmlns.oracle.com/soa/designer" xmlns:ns3="http://ciceroednilson.com.br/">
+
+  <!-- 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      PARTNERLINKS                                                      
+      List of services participating in this BPEL process               
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  -->
+  <import namespace="br.com.ciceroednilson" location="../WSDLs/calcularDesconto.wsdl"
+          importType="http://schemas.xmlsoap.org/wsdl/"/>
+  <import namespace="br.com.ciceroednilson" location="../WSDLs/calcularDescontoWrapper.wsdl"
+          importType="http://schemas.xmlsoap.org/wsdl/" ui:processWSDL="true"/>
+  <partnerLinks>
+    <!-- 
+      The 'client' role represents the requester of this service. It is 
+      used for callback. The location and correlation information associated
+      with the client role are automatically set using WS-Addressing.
+    -->
+    <partnerLink name="SpringCalcular.ICalcularDesconto" partnerLinkType="ns3:SpringCalcular.ICalcularDesconto"
+                 partnerRole="ICalcularDesconto"/>
+    <partnerLink name="PartnerLink1" partnerLinkType="ns1:Calcular_ptt_PLT" myRole="Calcular_ptt_Role"/>
+  </partnerLinks>
+
+  <!-- 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      VARIABLES                                                        
+      List of messages and XML documents used within this BPEL process 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  -->
+  <variables>
+    <!-- Reference to the message passed as input during initiation -->
+
+    <!-- Reference to the message that will be returned to the requester-->
+    <variable name="InvokeSpring_calcular_InputVariable" messageType="ns3:calcularInput"/>
+    <variable name="InvokeSpring_calcular_OutputVariable" messageType="ns3:calcularOutput"/>
+    <variable name="inputVariable" messageType="ns1:CalcularDescontoRequest"/>
+    <variable name="outputVariable" messageType="ns1:CalcularDescontoResponse"/>
+  </variables>
+
+  <!-- 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+     ORCHESTRATION LOGIC                                               
+     Set of activities coordinating the flow of messages across the    
+     services integrated within this business process                  
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  -->
+  <sequence name="main">
+
+    <!-- Receive input from requestor. (Note: This maps to operation defined in Calcular.wsdl) -->
+    <receive name="receiveInput" partnerLink="PartnerLink1" portType="ns1:Calcular_ptt" operation="CalcularDesconto" variable="inputVariable" createInstance="yes"/>
+    <assign name="Assign_set_calcular">
+      <copy>
+        <from>$inputVariable.parameters/ns1:salario</from>
+        <to expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">$InvokeSpring_calcular_InputVariable.parameters/arg0/salario</to>
+      </copy>
+    </assign>
+    <invoke name="InvokeSpring" bpelx:invokeAsDetail="no" partnerLink="SpringCalcular.ICalcularDesconto"
+            portType="ns3:ICalcularDesconto" operation="calcular" inputVariable="InvokeSpring_calcular_InputVariable"
+            outputVariable="InvokeSpring_calcular_OutputVariable"/>
+    <assign name="Assign_get_calcular">
+      <copy>
+        <from>$InvokeSpring_calcular_OutputVariable.parameters/return/aliquotaCobrada</from>
+        <to expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">$outputVariable.parameters/ns1:aliquotaCobrada</to>
+      </copy>
+      <copy>
+        <from>$InvokeSpring_calcular_OutputVariable.parameters/return/salarioBruto</from>
+        <to expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">$outputVariable.parameters/ns1:salarioBruto</to>
+      </copy>
+      <copy>
+        <from>$InvokeSpring_calcular_OutputVariable.parameters/return/salarioComDesconto</from>
+        <to expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">$outputVariable.parameters/ns1:salarioComDesconto</to>
+      </copy>
+    </assign>
+    <!-- Generate reply to synchronous request -->
+    <reply name="replyOutput" partnerLink="PartnerLink1" portType="ns1:Calcular_ptt" operation="CalcularDesconto" variable="outputVariable"/>
+  </sequence>
+</process>

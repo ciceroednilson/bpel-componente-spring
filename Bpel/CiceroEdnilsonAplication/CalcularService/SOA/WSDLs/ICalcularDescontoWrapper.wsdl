@@ -1,0 +1,15 @@
+<?xml version= '1.0' encoding= 'UTF-8' ?>
+<wsdl:definitions
+     name="ICalcularDesconto"
+     targetNamespace="http://ciceroednilson.com.br/"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+     xmlns:bpws="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+     xmlns:plnk="http://docs.oasis-open.org/wsbpel/2.0/plnktype"
+     xmlns:tns="http://ciceroednilson.com.br/"
+     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    >
+    <plnk:partnerLinkType name="SpringCalcular.ICalcularDesconto">
+        <plnk:role name="ICalcularDesconto" portType="tns:ICalcularDesconto"/>
+    </plnk:partnerLinkType>
+    <wsdl:import namespace="http://ciceroednilson.com.br/" location="ICalcularDesconto.wsdl"/>
+</wsdl:definitions>
